@@ -1,8 +1,9 @@
 package nlpcourse
 
 import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
-class NLPCourseTest extends FunSuite {
+class NLPCourseTest extends FunSuite with ShouldMatchers {
 	def fixture = new ViterbiAlgorithm()
 	lazy val D = Tag("D")
 	lazy val N = Tag("N")
@@ -18,7 +19,7 @@ class NLPCourseTest extends FunSuite {
 		viterbi.trainE("dog", D, 0.2)
 		viterbi.trainE("dog", N, 0.8)
 		viterbi.trainE("the", N, 0.2)
-		viterbi.trainE("barks", V)
+		viterbi.trainE("barks", V, 1)
 		
 		viterbi.pi(3, N, V) should equal (0.64)
 	}
