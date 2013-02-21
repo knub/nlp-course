@@ -14,4 +14,6 @@ package object nlpcourse {
 			m((a, b, c)) = d
 		}
 	}
+
+	type TagList = List[List[Tag]]
 }
