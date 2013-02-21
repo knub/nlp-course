@@ -21,6 +21,6 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 		viterbi.trainE("the", N, 0.2)
 		viterbi.trainE("barks", V, 1)
 		
-		viterbi.pi(3, N, V) should equal (0.64)
+		viterbi.pi(List("the", "dog", "barks"), 3, N, V) should equal (0.64)
 	}
 }

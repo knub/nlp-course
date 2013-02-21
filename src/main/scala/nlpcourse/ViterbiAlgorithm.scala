@@ -19,21 +19,28 @@ class ViterbiAlgorithm {
 		q(qi, qi_1, qi_2) = prob
 	}
 
-	def pi(k: Int, qi_1: Tag, qi: Tag): Double = {
+	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
 		possibleTaggings(k).map { tagging =>
-			r(tagging)
+			tagging ::: List(qi_1, qi)
+		}.map { tagging =>
+			r(sentence, tagging)
 		}.max
-		-1
 	}
 
-	def r(tagging: List[Tag]): Double = {
-		-1
+	def r(sentence: Sentence, tagging: List[Tag]): Double = {
+		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
+			acc * q(tagging(i), tagging(i - 2), tagging(i - 1))
+		} *
+		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
+			acc * e(sentence(i - 2), tagging(i))
+		}
+
 	}
 
 	def possibleTaggings(length: Int): TagList = {
 		val tagList = tags.toList.map { tag => List(tag) }
 		val crossProductEndo = EndoTo(crossProduct((_: TagList), tagList))
-		kthCrossProduct(length - 1, crossProductEndo, tagList).map { tagging =>
+		kthCrossProduct(length - 2, crossProductEndo, tagList).map { tagging =>
 			List(Star, Star) ::: tagging
 		}
 	}

@@ -16,4 +16,6 @@ package object nlpcourse {
 	}
 
 	type TagList = List[List[Tag]]
+	type Word = String
+	type Sentence = List[Word]
 }
