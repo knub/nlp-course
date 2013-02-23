@@ -13,6 +13,7 @@ class ViterbiAlgorithm {
 	val q = Map[(Tag, Tag, Tag), Double]().withDefaultValue(0.0)
 
 	val piValues = Map[(Int, Tag, Tag), Double]().withDefaultValue(1.0)
+	val bpValues = Map[(Int, Tag, Tag), Tag]()
 
 	val tags = Set[Tag]()
 	def trainE(word: String, tag: Tag, prob: Double) {
@@ -32,14 +33,18 @@ class ViterbiAlgorithm {
 		}.max
 	}
 
-	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
+	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): (TagList, Double) = {
 		sentence.zipWithIndex.foreach { case (word, k) =>
 			for(u <- K(k - 1); v <- K(k)) {
-				piValues(k, u, v) = {
+				val maxTaggingSequence = {
 					possibleTagsForPosition(k - 2).map { w =>
-						piValues(k - 1, w, u) * q(v, w, u) * e(sentence(k), v)
-					}.max
+						(w, piValues(k - 1, w, u) * q(v, w, u) * e(sentence(k), v))
+					}.maxBy { tagPair =>
+						tagPair._2
+					}
 				}
+				bpValues(k, u, v) = maxTaggingSequence._1
+				piValues(k, u, v) = maxTaggingSequence._2
 			}
 		}
 		val n = sentence.size
@@ -47,8 +52,8 @@ class ViterbiAlgorithm {
 			yield (u, v)
 
 		possibleTags.map { case (u, v) =>
-			piValues(n - 1, u, v) * q(STOP, u, v)
-		}.max
+			(List(), piValues(n - 1, u, v) * q(STOP, u, v))
+		}.maxBy { maxTaggingSequence => maxTaggingSequence._2 }
 	}
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {
