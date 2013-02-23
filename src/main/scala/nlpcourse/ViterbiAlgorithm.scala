@@ -19,12 +19,16 @@ class ViterbiAlgorithm {
 		q(qi, qi_1, qi_2) = prob
 	}
 
-	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
+	def piBruteForce(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
 		possibleTaggings(k).map { tagging =>
 			tagging ::: List(qi_1, qi)
 		}.map { tagging =>
 			r(sentence, tagging)
 		}.max
+	}
+
+	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
+		-1
 	}
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {
