@@ -66,26 +66,26 @@ class ViterbiAlgorithm {
 		if (k < 0)
 			List(Star)
 		else
-			createTagList
+			createList[TagList]
 	}
 
-	def createTagList: List[Tag] = {
+	def createList[TagList]: List[Tag] = {
 		(tags -- Set(STOP, Star)).toList
 	}
 
-	def possibleTaggingsOfLength(length: Int): TagList = {
-		val tagList = createTagList.map { tag => List(tag) }
-		val crossProductEndo = EndoTo(crossProduct((_: TagList), tagList))
+	def possibleTaggingsOfLength(length: Int): List[TagList] = {
+		val tagList = createList[TagList].map { tag => List(tag) }
+		val crossProductEndo = EndoTo(crossProduct((_: List[TagList]), tagList))
 		kthCrossProduct(length - 2, crossProductEndo, tagList).map { tagging =>
 			List(Star, Star) ::: tagging
 		}
 	}
 
-	private def kthCrossProduct(k: Int, endo: Endo[TagList], l: TagList): TagList = {
+	private def kthCrossProduct(k: Int, endo: Endo[List[TagList]], l: List[TagList]): List[TagList] = {
 		// as we want to calculate endo^k, we have to apply endo k - 1 with itself
 		(k - 1).times(endo).apply(l)
 	}
-	private def crossProduct(l1: TagList, l2: TagList): TagList = {
+	private def crossProduct(l1: List[TagList], l2: List[TagList]): List[TagList] = {
 		// val l = List(List(1), List(2), List(3))
 		for (x <- l1; y <- l2)
 			yield x ::: y
