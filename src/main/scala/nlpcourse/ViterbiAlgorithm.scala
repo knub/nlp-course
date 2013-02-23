@@ -6,8 +6,13 @@ import scalaz._
 import Scalaz._
 
 class ViterbiAlgorithm {
-	val e = Map[(String, Tag), Double]().withDefaultValue(0)
-	val q = Map[(Tag, Tag, Tag), Double]().withDefaultValue(0)
+	/**
+	 * Implementing Viterbi as of http://www.cs.columbia.edu/~mcollins/hmms-spring2013.pdf
+	 */
+	val e = Map[(String, Tag), Double]().withDefaultValue(0.0)
+	val q = Map[(Tag, Tag, Tag), Double]().withDefaultValue(0.0)
+
+	val piValues = Map[(Int, Tag, Tag), Double]().withDefaultValue(1.0)
 
 	val tags = Set[Tag]()
 	def trainE(word: String, tag: Tag, prob: Double) {
@@ -20,7 +25,7 @@ class ViterbiAlgorithm {
 	}
 
 	def piBruteForce(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
-		possibleTaggings(k).map { tagging =>
+		possibleTaggingsOfLength(k).map { tagging =>
 			tagging ::: List(qi_1, qi)
 		}.map { tagging =>
 			r(sentence, tagging)
@@ -28,7 +33,22 @@ class ViterbiAlgorithm {
 	}
 
 	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
-		-1
+		sentence.zipWithIndex.foreach { case (word, k) =>
+			for(u <- K(k - 1); v <- K(k)) {
+				piValues(k, u, v) = {
+					possibleTagsForPosition(k - 2).map { w =>
+						piValues(k - 1, w, u) * q(v, w, u) * e(sentence(k), v)
+					}.max
+				}
+			}
+		}
+		val n = sentence.size
+		val possibleTags = for(u <- K(n - 1); v <- K(n))
+			yield (u, v)
+
+		possibleTags.map { case (u, v) =>
+			piValues(n - 1, u, v) * q(STOP, u, v)
+		}.max
 	}
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {
@@ -41,8 +61,20 @@ class ViterbiAlgorithm {
 
 	}
 
-	def possibleTaggings(length: Int): TagList = {
-		val tagList = tags.toList.map { tag => List(tag) }
+	def K = possibleTagsForPosition _
+	def possibleTagsForPosition(k: Int): List[Tag] = {
+		if (k < 0)
+			List(Star)
+		else
+			createTagList
+	}
+
+	def createTagList: List[Tag] = {
+		(tags -- Set(STOP, Star)).toList
+	}
+
+	def possibleTaggingsOfLength(length: Int): TagList = {
+		val tagList = createTagList.map { tag => List(tag) }
 		val crossProductEndo = EndoTo(crossProduct((_: TagList), tagList))
 		kthCrossProduct(length - 2, crossProductEndo, tagList).map { tagging =>
 			List(Star, Star) ::: tagging
