@@ -48,12 +48,20 @@ class ViterbiAlgorithm {
 			}
 		}
 		val n = sentence.size
+		val lastIndex = n - 1
 		val possibleTags = for(u <- K(n - 1); v <- K(n))
 			yield (u, v)
 
-		possibleTags.map { case (u, v) =>
-			(List(), piValues(n - 1, u, v) * q(STOP, u, v))
-		}.maxBy { maxTaggingSequence => maxTaggingSequence._2 }
+		val maxTaggingSequence = possibleTags.map { case (u, v) =>
+			(List(u, v), piValues(n - 1, u, v) * q(STOP, u, v))
+		}.maxBy { taggingSequence => taggingSequence._2 }
+		val taggingSequence = new Array[Tag](n)
+		taggingSequence(lastIndex) = maxTaggingSequence._1.last
+		taggingSequence(lastIndex - 1) = maxTaggingSequence._1.head
+		(0 to lastIndex - 2).reverse.foreach { k =>
+			taggingSequence(k) = bpValues(k + 2, taggingSequence(k + 1), taggingSequence(k + 2))
+		}
+		(taggingSequence.toList, maxTaggingSequence._2)
 	}
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {

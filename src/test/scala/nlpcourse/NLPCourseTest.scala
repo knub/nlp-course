@@ -33,9 +33,9 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 	}
 
 	test("First Viterbi quiz calculates correct tagging.") {
-		//val viterbi = firstQuiz
+		val viterbi = firstQuiz
 		
-		// viterbi.pi(List("the", "dog", "barks"), 3, N, V)._2 should be (0.64 plusOrMinus 0.0000001)
+		viterbi.pi(List("the", "dog", "barks"), 3, N, V)._1 should be (List(D, N, V))
 
 	}
 }
