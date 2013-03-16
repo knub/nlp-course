@@ -5,25 +5,14 @@ import nlpcourse._
 import scalaz._
 import Scalaz._
 
-class ViterbiAlgorithm {
+class ViterbiAlgorithm(languageModel: LanguageModel) {
 	/**
 	 * Implementing Viterbi as of http://www.cs.columbia.edu/~mcollins/hmms-spring2013.pdf
 	 */
-	val e = Map[(String, Tag), Double]().withDefaultValue(0.0)
-	val q = Map[(Tag, Tag, Tag), Double]().withDefaultValue(0.0)
+	 val m = languageModel
 
 	val piValues = Map[(Int, Tag, Tag), Double]().withDefaultValue(1.0)
 	val bpValues = Map[(Int, Tag, Tag), Tag]()
-
-	val tags = Set[Tag]()
-	def trainE(word: String, tag: Tag, prob: Double) {
-		e(word, tag) = prob
-	}
-
-	def trainQ(qi: Tag, qi_1: Tag, qi_2: Tag, prob: Double) {
-		tags += (qi, qi_1, qi_2)
-		q(qi, qi_1, qi_2) = prob
-	}
 
 	def piBruteForce(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): Double = {
 		possibleTaggingsOfLength(k).map { tagging =>
@@ -38,7 +27,7 @@ class ViterbiAlgorithm {
 			for(u <- K(k - 1); v <- K(k)) {
 				val maxTaggingSequence = {
 					possibleTagsForPosition(k - 2).map { w =>
-						(w, piValues(k - 1, w, u) * q(v, w, u) * e(sentence(k), v))
+						(w, piValues(k - 1, w, u) * m.q(v, w, u) * m.e(sentence(k), v))
 					}.maxBy { tagPair =>
 						tagPair._2
 					}
@@ -53,7 +42,7 @@ class ViterbiAlgorithm {
 			yield (u, v)
 
 		val maxTaggingSequence = possibleTags.map { case (u, v) =>
-			(List(u, v), piValues(n - 1, u, v) * q(STOP, u, v))
+			(List(u, v), piValues(n - 1, u, v) * m.q(STOP, u, v))
 		}.maxBy { taggingSequence => taggingSequence._2 }
 		val taggingSequence = new Array[Tag](n)
 		taggingSequence(lastIndex) = maxTaggingSequence._1.last
@@ -66,10 +55,10 @@ class ViterbiAlgorithm {
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {
 		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
-			acc * q(tagging(i), tagging(i - 2), tagging(i - 1))
+			acc * m.q(tagging(i), tagging(i - 2), tagging(i - 1))
 		} *
 		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
-			acc * e(sentence(i - 2), tagging(i))
+			acc * m.e(sentence(i - 2), tagging(i))
 		}
 
 	}
@@ -83,7 +72,7 @@ class ViterbiAlgorithm {
 	}
 
 	def createList[TagList]: List[Tag] = {
-		(tags -- Set(STOP, Star)).toList
+		(m.tags -- Set(STOP, Star)).toList
 	}
 
 	def possibleTaggingsOfLength(length: Int): List[TagList] = {
