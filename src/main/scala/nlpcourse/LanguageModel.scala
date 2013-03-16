@@ -4,14 +4,14 @@ import scala.collection.mutable.{Map, Set}
 import nlpcourse._
 
 class LanguageModel {
-	private val eValues = Map[(String, Tag), Double]()
+	private val eValues = Map[(Word, Tag), Double]()
 	private val tValues = Map[(Tag, Tag, Tag), Double]()
 
-	private val stringTagOccurrence = Map[(String, Tag), Int]()
+	private val wordTagOccurrence = Map[(Word, Tag), Int]().withDefaultValue(0)
 	private val tagOccurence = Map[Tag, Int]()
 
 	var wordCount = 0
-	val unigramCount = Map[Word, Int]()
+	val unigramCount = Map[Word, Int]().withDefaultValue(0)
 	val bigramCount = Map[(Word, Word), Int]()
 	val trigramCount = Map[(Word, Word, Word), Int]()
 
@@ -23,14 +23,21 @@ class LanguageModel {
 
 	val tags = Set[Tag]()
 
-	def e(w: String, t: Tag): Double = {
+	def trainWordTagOccurrence(word: Word, tag: Tag, count: Int) {
+		tags += tag
+		unigramCount(word) += count
+		wordTagOccurrence((word, tag)) += 1
+		increaseOne(tagOccurence, tag)
+	}
+
+	def e(w: Word, t: Tag): Double = {
 		if (eValues.contains((w, t)))
 			return eValues(w, t)
 
 		val tOccurence = tagOccurence.getOrElse(t, 0)
-		// println("Word: %s, Tag: %s, tOccurence: %d, wOccurence: %d".format(w, t, tOccurence, stringTagOccurrence.getOrElse((w, t), 0)))
+		// println("Word: %s, Tag: %s, tOccurence: %d, wOccurence: %d".format(w, t, tOccurence, wordTagOccurrence.getOrElse((w, t), 0)))
 		if (tOccurence != 0)
-			stringTagOccurrence.getOrElse((w, t), 0).toDouble / tOccurence
+			wordTagOccurrence.getOrElse((w, t), 0).toDouble / tOccurence
 		else
 			0.0
 	}
@@ -51,7 +58,7 @@ class LanguageModel {
 
 		if (s.size == tagList.size) {
 			s.zip(tagList).foreach { case (word, tag) =>
-				increaseOne(stringTagOccurrence, (word, tag))
+				increaseOne(wordTagOccurrence, (word, tag))
 				increaseOne(tagOccurence, tag)
 			}
 		}

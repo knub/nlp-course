@@ -5,9 +5,8 @@ import scalax.io._
 
 object Assignment1 extends App {
 
-	def inputFileName = "gene.train"
-
-	lazy val wordCount = Map[String, Int]().withDefaultValue(0)
+	lazy val inputFileName = "gene.train"
+	lazy val baseFileName = inputFileName.split("\\.")(0)
 
 	override def main(args: Array[String]): Unit = {
 		if (args contains "build") {
@@ -26,6 +25,7 @@ object Assignment1 extends App {
 	}
 
 	def determineWordsToBeReplaced: List[String] = {
+		val wordCount = Map[String, Int]().withDefaultValue(0)
 		val countTrainingFile = Resource.fromFile("assignment_1/%s.counts".format(inputFileName))
 		val lines = countTrainingFile.lines()
 
@@ -60,15 +60,36 @@ object Assignment1 extends App {
 
 	def predictTags {
 		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
-		val predictFile = Resource.fromFile("assignment_1/%s_dev.p1.out")
+		val devFile = Resource.fromFile("assignment_1/%s.dev".format(baseFileName))
+		val predictFile = Resource.fromFile("assignment_1/%s_dev.p1.out".format(baseFileName))
 		val countLines = countFile.lines()
+		val devLines = devFile.lines()
 
-		val sb = new StringBuilder
-		countLines.foreach { line =>
+		val model = new LanguageModel
+		countLines.toList.filter { line =>
+			line.contains("WORDTAG")
+		}.foreach { line =>
 			val lineData = line.split(" ")
 			val count = lineData(0).toInt
+			val tag = Tag(lineData(2))
 			val word = lineData(3)
-			wordCount(word) += count
+			model.trainWordTagOccurrence(word, tag, count)
+		}
+
+		val sb = new StringBuilder
+		val tags = model.tags
+		devLines.foreach { line =>
+			if (line.size == 0)
+				sb.append("%s%n".format(line))
+			else {
+				val word = if (model.unigramCount(line) < 5) "_RARE_" else line
+				println("Trying to find tag for %s out of %s".format(word, tags.toString))
+				val (predictedTag: Tag, _) = tags.map { tag =>
+					println("Tag %s has probability %f".format(tag, model.e(word, tag)))
+					(tag, model.e(word, tag))
+				}.maxBy(_._2)
+				sb.append("%s %s%n".format(word, predictedTag.tag))
+			}
 		}
 		predictFile.append(sb.toString)
 
