@@ -19,8 +19,8 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 	}
 	def firstQuizQuestionSixLanguageModel: LanguageModel = {
 		val model = new LanguageModel()
-		// model.trainTagging(List("the", "dog", "saw", "the", "cat"), List(D, N, V, D, N))
-		// model.trainTagging(List("the", "dog", "saw", "the", "cat"), List(D, N, V, D, N))
+		model.trainTagging(List("the", "dog", "saw", "the", "cat"), List(D, N, V, D, N))
+		model.trainTagging(List("the", "dog", "saw", "the", "cat"), List(D, N, V, D, N))
 		model
 	}
 	lazy val D = Tag("D")
@@ -47,7 +47,7 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 		val model = firstQuizQuestionSixLanguageModel
 
 
-		// model.t(D, Star, Star) should be (1)
+		model.t(D, Star, Star) should be (1)
 		// model.trainQ(N, Star, D, 1)
 		// model.trainQ(V, D, N, 0.5)
 		// model.trainQ(STOP, D, N, 0.5)
