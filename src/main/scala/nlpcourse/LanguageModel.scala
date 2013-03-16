@@ -32,7 +32,7 @@ class LanguageModel {
 		if (tOccurence != 0)
 			stringTagOccurrence.getOrElse((w, t), 0).toDouble / tOccurence
 		else
-			1.0
+			0.0
 	}
 
 	def trainTagging(s: Sentence, tagList: TagList) {
@@ -45,9 +45,9 @@ class LanguageModel {
 		s.sliding(3).foreach { word => increaseOne(trigramCount, (word(0), word(1), word(2))) }
 
 		val formedTagList = List(Star, Star) ::: tagList ::: List(STOP)
-		formedTagList.foreach { word => increaseOne(tagUnigramCount, word) }
-		formedTagList.sliding(2).foreach { word => increaseOne(tagBigramCount, (word(0), word(1))) }
-		formedTagList.sliding(3).foreach { word => increaseOne(tagTrigramCount, (word(0), word(1), word(2))) }
+		formedTagList.foreach { tag => increaseOne(tagUnigramCount, tag) }
+		formedTagList.sliding(2).foreach { tags => increaseOne(tagBigramCount, (tags(0), tags(1))) }
+		formedTagList.sliding(3).foreach { tags => increaseOne(tagTrigramCount, (tags(0), tags(1), tags(2))) }
 
 		if (s.size == tagList.size) {
 			s.zip(tagList).foreach { case (word, tag) =>

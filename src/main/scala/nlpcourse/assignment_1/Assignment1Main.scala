@@ -10,12 +10,19 @@ object Assignment1 extends App {
 	lazy val wordCount = Map[String, Int]().withDefaultValue(0)
 
 	override def main(args: Array[String]): Unit = {
-		print("Determing words to be replaced")
-		val wordsToBeReplaced = determineWordsToBeReplaced
-		println(": Done.")
-		print("Build new training file")
-		buildNewTrainingFile(wordsToBeReplaced)
-		println(": Done.")
+		if (args contains "build") {
+			print("Determing words to be replaced")
+			val wordsToBeReplaced = determineWordsToBeReplaced
+			println(": Done.")
+			print("Build new training file")
+			buildNewTrainingFile(wordsToBeReplaced)
+			println(": Done.")
+		}
+		else if (args contains "predict") {
+			print("Predicting tags")
+			predictTags
+			println(": Done.")
+		}
 	}
 
 	def determineWordsToBeReplaced: List[String] = {
@@ -49,6 +56,22 @@ object Assignment1 extends App {
 			sb.append(s)
 		}
 		newTrainingFile.append(sb.toString)
+	}
+
+	def predictTags {
+		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
+		val predictFile = Resource.fromFile("assignment_1/%s_dev.p1.out")
+		val countLines = countFile.lines()
+
+		val sb = new StringBuilder
+		countLines.foreach { line =>
+			val lineData = line.split(" ")
+			val count = lineData(0).toInt
+			val word = lineData(3)
+			wordCount(word) += count
+		}
+		predictFile.append(sb.toString)
+
 
 	}
 }
