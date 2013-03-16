@@ -27,7 +27,7 @@ class ViterbiAlgorithm(languageModel: LanguageModel) {
 			for(u <- K(k - 1); v <- K(k)) {
 				val maxTaggingSequence = {
 					possibleTagsForPosition(k - 2).map { w =>
-						(w, piValues(k - 1, w, u) * m.q(v, w, u) * m.e(sentence(k), v))
+						(w, piValues(k - 1, w, u) * m.t(v, w, u) * m.e(sentence(k), v))
 					}.maxBy { tagPair =>
 						tagPair._2
 					}
@@ -42,7 +42,7 @@ class ViterbiAlgorithm(languageModel: LanguageModel) {
 			yield (u, v)
 
 		val maxTaggingSequence = possibleTags.map { case (u, v) =>
-			(List(u, v), piValues(n - 1, u, v) * m.q(STOP, u, v))
+			(List(u, v), piValues(n - 1, u, v) * m.t(STOP, u, v))
 		}.maxBy { taggingSequence => taggingSequence._2 }
 		val taggingSequence = new Array[Tag](n)
 		taggingSequence(lastIndex) = maxTaggingSequence._1.last
@@ -55,7 +55,7 @@ class ViterbiAlgorithm(languageModel: LanguageModel) {
 
 	def r(sentence: Sentence, tagging: List[Tag]): Double = {
 		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
-			acc * m.q(tagging(i), tagging(i - 2), tagging(i - 1))
+			acc * m.t(tagging(i), tagging(i - 2), tagging(i - 1))
 		} *
 		(2 to tagging.size - 1).foldLeft(1.0) { (acc, i) =>
 			acc * m.e(sentence(i - 2), tagging(i))
