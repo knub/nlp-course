@@ -36,6 +36,7 @@ class LanguageModel {
 	}
 
 	def trainTagging(s: Sentence, tagList: TagList) {
+		tags ++= tagList
 		tagCount += tagList.size
 		wordCount += s.size
 

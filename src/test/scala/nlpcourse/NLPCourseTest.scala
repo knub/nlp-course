@@ -60,8 +60,8 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 		model.e("saw", V) should be (1.0)
 		// viterbi.pi(List("the", "cat", "saw", "the", "saw"), 5, D, V)._2 should be (0.055 plusOrMinus 0.001)
 	}
-	// test("First quiz, question six is correctly calculated.") {
-	// 	val viterbi = new ViterbiAlgorithm(firstQuizQuestionSixLanguageModel)
-	// 	viterbi.pi(List("the", "cat", "saw", "the", "saw"), 5, D, V)._2 should be (0.055 plusOrMinus 0.001)
-	// }
+	test("First quiz, question six is correctly calculated.") {
+		val viterbi = new ViterbiAlgorithm(firstQuizQuestionSixLanguageModel)
+		viterbi.pi(List("the", "cat", "saw", "the", "saw"), 5, D, V)._2 should be (0.03125)
+	}
 }

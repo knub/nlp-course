@@ -68,15 +68,15 @@ class ViterbiAlgorithm(languageModel: LanguageModel) {
 		if (k < 0)
 			List(Star)
 		else
-			createList[TagList]
+			createList
 	}
 
-	def createList[TagList]: List[Tag] = {
+	def createList: List[Tag] = {
 		(m.tags -- Set(STOP, Star)).toList
 	}
 
 	def possibleTaggingsOfLength(length: Int): List[TagList] = {
-		val tagList = createList[TagList].map { tag => List(tag) }
+		val tagList = createList.map { tag => List(tag) }
 		val crossProductEndo = EndoTo(crossProduct((_: List[TagList]), tagList))
 		kthCrossProduct(length - 2, crossProductEndo, tagList).map { tagging =>
 			List(Star, Star) ::: tagging
