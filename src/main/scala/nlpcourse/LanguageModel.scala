@@ -34,14 +34,6 @@ class LanguageModel {
 		else
 			1.0
 	}
-	// def t(qi: Tag, qi_1: Tag, qi_2: Tag): Double = {
-
-	// 	val tOccurence = tagBigramCount.getOrElse((qi_2, qi_1), 0)
-	// 	if (tOccurence != 0)
-	// 		tagTrigramCount.getOrElse((qi_2, qi_1, qi), 0).toDouble / tOccurence
-	// 	else
-	// 		0.0
-	// }
 
 	def trainTagging(s: Sentence, tagList: TagList) {
 		tagCount += tagList.size
@@ -62,7 +54,6 @@ class LanguageModel {
 				increaseOne(tagOccurence, tag)
 			}
 		}
-
 	}
 
 	private def increaseOne[K](m: Map[K, Int], v: K) {
@@ -84,12 +75,10 @@ class LanguageModel {
 			case 2 => tagBigramCount.getOrElse((tags(1), tags(0)), 0).toDouble / tagUnigramCount.getOrElse(tags(1), 0)
 			case 3 => tagTrigramCount.getOrElse((tags(1), tags(2), tags(0)), 0).toDouble / tagBigramCount.getOrElse((tags(1), tags(2)), 0)
 		}
-		val x = if (d == Double.PositiveInfinity || d.isNaN)
+		if (d == Double.PositiveInfinity || d.isNaN)
 			0.0
 		else
 			d
-		println(x)
-		x
 	}
 
 	def trainE(word: String, tag: Tag, prob: Double) {
