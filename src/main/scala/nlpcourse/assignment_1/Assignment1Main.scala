@@ -60,11 +60,12 @@ object Assignment1 extends App {
 		newTrainingFile.append(sb.toString)
 	}
 
+	lazy val evaluationFile = "test"
 	def predictTags {
 		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
-		val devFile = Resource.fromFile("assignment_1/%s.dev".format(baseFileName))
-		new File("assignment_1/%s_dev.p1.out".format(baseFileName)).delete
-		val predictFile = Resource.fromFile("assignment_1/%s_dev.p1.out".format(baseFileName))
+		val devFile = Resource.fromFile("assignment_1/gene.%s".format(evaluationFile))
+		new File("assignment_1/gene_%s.p1.out".format(evaluationFile)).delete
+		val predictFile = Resource.fromFile("assignment_1/gene_%s.p1.out".format(evaluationFile))
 		val countLines = countFile.lines()
 		val devLines = devFile.lines()
 
