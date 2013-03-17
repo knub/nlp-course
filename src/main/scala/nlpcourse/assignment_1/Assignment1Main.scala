@@ -18,9 +18,14 @@ object Assignment1 extends App {
 			buildNewTrainingFile(wordsToBeReplaced)
 			println(": Done.")
 		}
-		else if (args contains "predict") {
+		else if (args contains "predict1") {
 			print("Predicting tags")
-			predictTags
+			predictTagsPart1
+			println(": Done.")
+		}
+		else if (args contains "predict2") {
+			print("Predicting tags")
+			predictTagsPart2
 			println(": Done.")
 		}
 	}
@@ -61,7 +66,12 @@ object Assignment1 extends App {
 	}
 
 	lazy val evaluationFile = "test"
-	def predictTags {
+
+
+	/*
+	 * PART 1
+	 */
+	def predictTagsPart1 {
 		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
 		val devFile = Resource.fromFile("assignment_1/gene.%s".format(evaluationFile))
 		new File("assignment_1/gene_%s.p1.out".format(evaluationFile)).delete
@@ -98,5 +108,42 @@ object Assignment1 extends App {
 			}
 		}
 		predictFile.append(sb.toString)
+	}
+
+	/*
+	 * PART 2
+	 */
+	def predictTagsPart2 {
+		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
+		val devFile = Resource.fromFile("assignment_1/gene.%s".format(evaluationFile))
+		new File("assignment_1/gene_%s.p1.out".format(evaluationFile)).delete
+		val predictFile = Resource.fromFile("assignment_1/gene_%s.p1.out".format(evaluationFile))
+		val countLines = countFile.lines()
+		val devLines = devFile.lines()
+
+		val model = new LanguageModel
+		countLines.foreach { line =>
+			if (line.contains("WORDTAG")) {
+				val lineData = line.split(" ")
+				val count = lineData(0).toInt
+				val tag = Tag(lineData(2))
+				val word = lineData(3)
+				model.trainWordTagOccurrence(word, tag, count)
+			}
+			else if (line.contains("-GRAM ")) {
+				val lineData = line.split(" ")
+				if (line.contains("1-GRAM")) {
+					model.trainUnigramOccurrence(Tag(lineData(2)), lineData(0).toInt)
+				}
+				else if (line.contains("2-GRAM")) {
+					model.trainBigramOccurrence(Tag(lineData(2)), Tag(lineData(3)), lineData(0).toInt)
+				}
+				else if (line.contains("3-GRAM")) {
+					model.trainTrigramOccurrence(Tag(lineData(2)), Tag(lineData(3)), Tag(lineData(4)), lineData(0).toInt)
+				}
+			}
+		}
+
+		println(model.t(Tag("O"), Tag("O"), Tag("I-GENE")))
 	}
 }

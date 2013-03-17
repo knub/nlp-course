@@ -16,10 +16,9 @@ class LanguageModel {
 	val trigramCount = Map[(Word, Word, Word), Int]()
 
 	var tagCount = 0
-	val tagUnigramCount = Map[Tag, Int]()
-	val tagBigramCount = Map[(Tag, Tag), Int]()
-	val tagTrigramCount = Map[(Tag, Tag, Tag), Int]()
-
+	val tagUnigramCount = Map[Tag, Int]().withDefaultValue(0)
+	val tagBigramCount = Map[(Tag, Tag), Int]().withDefaultValue(0)
+	val tagTrigramCount = Map[(Tag, Tag, Tag), Int]().withDefaultValue(0)
 
 	val tags = Set[Tag]()
 
@@ -76,8 +75,10 @@ class LanguageModel {
 	def t(tags: Tag*): Double = {
 		tags.size match {
 			case 3 => {
-				if (tValues.contains((tags(0), tags(1), tags(2))))
+				if (tValues.contains((tags(0), tags(1), tags(2)))) {
+					println("Using given t value.")
 					return tValues((tags(0), tags(1), tags(2)))
+				}
 			}
 		}
 
@@ -94,6 +95,19 @@ class LanguageModel {
 
 	def trainE(word: String, tag: Tag, prob: Double) {
 		eValues(word, tag) = prob
+	}
+
+	def trainTrigramOccurrence(qi_2: Tag, qi_1: Tag, qi: Tag, count: Int) {
+		tags += (qi, qi_1, qi_2)
+		tagTrigramCount((qi_2, qi_1, qi)) += count
+	}
+	def trainBigramOccurrence(qi_1: Tag, qi: Tag, count: Int) {
+		tags += (qi, qi_1)
+		tagBigramCount((qi_1, qi)) += count
+	}
+	def trainUnigramOccurrence(qi: Tag, count: Int) {
+		tags += qi
+		tagUnigramCount(qi) += count
 	}
 
 	def trainT(qi: Tag, qi_1: Tag, qi_2: Tag, prob: Double) {
