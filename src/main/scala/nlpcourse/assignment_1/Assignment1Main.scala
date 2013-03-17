@@ -1,6 +1,6 @@
 package nlpcourse
 
-import scala.collection.mutable.{Set, Map}
+import scala.collection.mutable.{ListBuffer, Map, Set}
 import java.io.File
 import scalax.io._
 import nlpcourse._
@@ -117,8 +117,8 @@ object Assignment1 extends App {
 	def predictTagsPart2 {
 		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
 		val devFile = Resource.fromFile("assignment_1/gene.%s".format(evaluationFile))
-		new File("assignment_1/gene_%s.p1.out".format(evaluationFile)).delete
-		val predictFile = Resource.fromFile("assignment_1/gene_%s.p1.out".format(evaluationFile))
+		new File("assignment_1/gene_%s.p2.out".format(evaluationFile)).delete
+		val predictFile = Resource.fromFile("assignment_1/gene_%s.p2.out".format(evaluationFile))
 		val countLines = countFile.lines()
 		val devLines = devFile.lines()
 
@@ -151,20 +151,23 @@ object Assignment1 extends App {
 		val viterbi = new ViterbiAlgorithm(model)
 		val sb = new StringBuilder
 		val tags = model.tags
-		var currentSentence = List[String]()
+		var currentSentence = ListBuffer[String]()
+		var currentSentenceWithRare = ListBuffer[String]()
 		devLines.foreach { line =>
 			if (line.size == 0) {
-				val tagging: TagList = viterbi.p(currentSentence)._1
-				if (currentSentence.size != tagging.size)
-					throw new Error("Should be same size.")
+				val tagging: TagList = viterbi.p(currentSentenceWithRare.toList)._1
 				currentSentence.zip(tagging).foreach { case (word, tag) =>
-					sb.append("%s %s%n".format(word, tag))
+					sb.append("%s %s%n".format(word, tag.tag))
 				}
 				sb.append("%n".format())
-				currentSentence = List[String]()
+				// println(currentSentence.zip(tagging))
+				currentSentence = ListBuffer[String]()
+				currentSentenceWithRare = ListBuffer[String]()
 			}
 			else {
-				currentSentence ::= line
+				val word = if (model.unigramCount(line) < 5) "_RARE_" else line
+				currentSentence += line
+				currentSentenceWithRare += word
 			}
 		}
 		predictFile.append(sb.toString)
