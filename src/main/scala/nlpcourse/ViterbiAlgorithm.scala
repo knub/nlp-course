@@ -22,6 +22,18 @@ class ViterbiAlgorithm(languageModel: LanguageModel) {
 		}.max
 	}
 
+	def p(s: Sentence): (TagList, Double) = {
+		val n = s.size
+		val possibleLastTags = for (u <- K(n - 1); v <- K(n))
+			yield (u, v)
+
+		possibleLastTags.map { case (u, v) =>
+			(pi(s, n, u, v), u, v)
+		}.maxBy { case (pi, u, v) =>
+			 pi._2 * m.t(STOP, u, v)
+		}._1
+	}
+
 	def pi(sentence: Sentence, k: Int, qi_1: Tag, qi: Tag): (TagList, Double) = {
 		sentence.zipWithIndex.foreach { case (word, k) =>
 			for(u <- K(k - 1); v <- K(k)) {

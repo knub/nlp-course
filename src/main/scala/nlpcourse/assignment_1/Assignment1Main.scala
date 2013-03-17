@@ -144,6 +144,5 @@ object Assignment1 extends App {
 			}
 		}
 
-		println(model.t(Tag("O"), Tag("O"), Tag("I-GENE")))
 	}
 }

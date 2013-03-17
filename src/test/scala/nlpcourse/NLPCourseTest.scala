@@ -39,8 +39,8 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 
 	test("First viterbi in-video quiz calculates correct tagging.") {
 		val viterbi = firstInVideoQuiz
-
 		viterbi.pi(List("the", "dog", "barks"), 3, N, V)._1 should be (List(D, N, V))
+		viterbi.p(List("the", "dog", "barks"))._1 should be (List(D, N, V))
 	}
 
 	test("Language Model creates correct counts on first quiz, question six.") {
@@ -63,5 +63,9 @@ class NLPCourseTest extends FunSuite with ShouldMatchers {
 	test("First quiz, question six is correctly calculated.") {
 		val viterbi = new ViterbiAlgorithm(firstQuizQuestionSixLanguageModel)
 		viterbi.pi(List("the", "cat", "saw", "the", "saw"), 5, D, V)._2 should be (0.03125)
+	}
+	test("First quiz, question six calculates correct tagging.") {
+		val viterbi = new ViterbiAlgorithm(firstQuizQuestionSixLanguageModel)
+		viterbi.p(List("the", "cat", "saw", "the", "saw")) should be ((List(D, N, V, D, N)), (0.03125))
 	}
 }
