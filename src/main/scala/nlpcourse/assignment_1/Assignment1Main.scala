@@ -3,6 +3,7 @@ package nlpcourse
 import scala.collection.mutable.{Set, Map}
 import java.io.File
 import scalax.io._
+import nlpcourse._
 
 object Assignment1 extends App {
 
@@ -144,5 +145,28 @@ object Assignment1 extends App {
 			}
 		}
 
+		//
+		// Predicting now.
+		//
+		val viterbi = new ViterbiAlgorithm(model)
+		val sb = new StringBuilder
+		val tags = model.tags
+		var currentSentence = List[String]()
+		devLines.foreach { line =>
+			if (line.size == 0) {
+				val tagging: TagList = viterbi.p(currentSentence)._1
+				if (currentSentence.size != tagging.size)
+					throw new Error("Should be same size.")
+				currentSentence.zip(tagging).foreach { case (word, tag) =>
+					sb.append("%s %s%n".format(word, tag))
+				}
+				sb.append("%n".format())
+				currentSentence = List[String]()
+			}
+			else {
+				currentSentence ::= line
+			}
+		}
+		predictFile.append(sb.toString)
 	}
 }
