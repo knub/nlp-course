@@ -8,7 +8,7 @@ class LanguageModel {
 	private val tValues = Map[(Tag, Tag, Tag), Double]()
 
 	private val wordTagOccurrence = Map[(Word, Tag), Int]().withDefaultValue(0)
-	private val tagOccurence = Map[Tag, Int]()
+	private val tagOccurence = Map[Tag, Int]().withDefaultValue(0)
 
 	var wordCount = 0
 	val unigramCount = Map[Word, Int]().withDefaultValue(0)
@@ -26,15 +26,18 @@ class LanguageModel {
 	def trainWordTagOccurrence(word: Word, tag: Tag, count: Int) {
 		tags += tag
 		unigramCount(word) += count
-		wordTagOccurrence((word, tag)) += 1
-		increaseOne(tagOccurence, tag)
+		wordTagOccurrence((word, tag)) += count
+		tagOccurence(tag) += count
 	}
 
 	def e(w: Word, t: Tag): Double = {
-		if (eValues.contains((w, t)))
+		if (eValues.contains((w, t))) {
+			// println("Using given e values.")
 			return eValues(w, t)
+		}
 
 		val tOccurence = tagOccurence.getOrElse(t, 0)
+		// println("Tag %s occcurs %d".format(t, tOccurence))
 		// println("Word: %s, Tag: %s, tOccurence: %d, wOccurence: %d".format(w, t, tOccurence, wordTagOccurrence.getOrElse((w, t), 0)))
 		if (tOccurence != 0)
 			wordTagOccurrence.getOrElse((w, t), 0).toDouble / tOccurence

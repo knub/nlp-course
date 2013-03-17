@@ -1,6 +1,7 @@
 package nlpcourse
 
 import scala.collection.mutable.{Set, Map}
+import java.io.File
 import scalax.io._
 
 object Assignment1 extends App {
@@ -43,6 +44,7 @@ object Assignment1 extends App {
 
 	def buildNewTrainingFile(wordsToBeReplaced: List[String]) {
 		val trainingFile = Resource.fromFile("assignment_1/%s".format(inputFileName))
+		new File("assignment_1/%s.new".format(inputFileName)).delete
 		val newTrainingFile = Resource.fromFile("assignment_1/%s.new".format(inputFileName))
 		val lines = trainingFile.lines()
 
@@ -61,6 +63,7 @@ object Assignment1 extends App {
 	def predictTags {
 		val countFile = Resource.fromFile("assignment_1/%s.new.counts".format(inputFileName))
 		val devFile = Resource.fromFile("assignment_1/%s.dev".format(baseFileName))
+		new File("assignment_1/%s_dev.p1.out".format(baseFileName)).delete
 		val predictFile = Resource.fromFile("assignment_1/%s_dev.p1.out".format(baseFileName))
 		val countLines = countFile.lines()
 		val devLines = devFile.lines()
@@ -73,6 +76,7 @@ object Assignment1 extends App {
 			val count = lineData(0).toInt
 			val tag = Tag(lineData(2))
 			val word = lineData(3)
+			// println("Training word: %s, tag: %s, count: %d".format(word, tag, count))
 			model.trainWordTagOccurrence(word, tag, count)
 		}
 
@@ -83,16 +87,15 @@ object Assignment1 extends App {
 				sb.append("%s%n".format(line))
 			else {
 				val word = if (model.unigramCount(line) < 5) "_RARE_" else line
-				println("Trying to find tag for %s out of %s".format(word, tags.toString))
+				// println("Word: %s, UnigramCount: %d, UnigramCountRare: %d".format(word, model.unigramCount(line), model.unigramCount("_RARE_")))
+				// println("Trying to find tag for %s out of %s".format(word, tags.toString))
 				val (predictedTag: Tag, _) = tags.map { tag =>
-					println("Tag %s has probability %f".format(tag, model.e(word, tag)))
+					// println("Tag %s has probability %f".format(tag, model.e(word, tag)))
 					(tag, model.e(word, tag))
 				}.maxBy(_._2)
-				sb.append("%s %s%n".format(word, predictedTag.tag))
+				sb.append("%s %s%n".format(line, predictedTag.tag))
 			}
 		}
 		predictFile.append(sb.toString)
-
-
 	}
 }
