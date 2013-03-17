@@ -29,6 +29,14 @@ object Assignment1 extends App {
 			predictTagsPart2
 			println(": Done.")
 		}
+		else if (args contains "wordclasses") {
+			print("Determing words to be replaced")
+			val wordsToBeReplaced = determineWordsToBeReplaced
+			println(": Done.")
+			print("Build new training file")
+			buildNewTrainingFileWithWordClasses(wordsToBeReplaced)
+			println(": Done.")
+		}
 	}
 
 	def determineWordsToBeReplaced: List[String] = {
@@ -66,8 +74,39 @@ object Assignment1 extends App {
 		newTrainingFile.append(sb.toString)
 	}
 
-	lazy val evaluationFile = "test"
+	def determineWordClass(s: String): String = {
+		val Numeric = """.*\d.*""".r
+		val AllCapitals = """[A-Z]+""".r
+		val LastCapital = """.*[A-Z]$""".r
+		s match {
+			case Numeric() => "_NUMERIC_"
+			case AllCapitals() => "_ALLCAPITALS_"
+			case LastCapital() => "_LASTCAPITAL_"
+			case _ => "_RARE_"
+		}
+	}
 
+	def buildNewTrainingFileWithWordClasses(wordsToBeReplaced: List[String]) {
+		val trainingFile = Resource.fromFile("assignment_1/%s".format(inputFileName))
+		new File("assignment_1/%s.new".format(inputFileName)).delete
+		val newTrainingFile = Resource.fromFile("assignment_1/%s.new".format(inputFileName))
+		val lines = trainingFile.lines()
+
+		val sb = new StringBuilder
+		lines.foreach { line =>
+			val lineData = line.split(" ")
+			val s = if (wordsToBeReplaced.contains(lineData(0))) {
+				val wordClass = determineWordClass(lineData(0))
+				"%s %s%n".format(wordClass, lineData.drop(1).mkString(" "))
+			}
+			else
+				"%s%n".format(line)
+			sb.append(s)
+		}
+		newTrainingFile.append(sb.toString)
+	}
+
+	lazy val evaluationFile = "dev"
 
 	/*
 	 * PART 1
@@ -165,7 +204,7 @@ object Assignment1 extends App {
 				currentSentenceWithRare = ListBuffer[String]()
 			}
 			else {
-				val word = if (model.unigramCount(line) < 5) "_RARE_" else line
+				val word = if (model.unigramCount(line) < 5) determineWordClass(line) else line
 				currentSentence += line
 				currentSentenceWithRare += word
 			}
