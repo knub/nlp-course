@@ -39,7 +39,7 @@ class CFG {
 
 	def q(rule: Rule): Double = {
 		if (rules.contains(rule))
-			1.0
+			rules.find(_ == rule).get.prob
 		else
 			0.0
 	}
@@ -59,16 +59,24 @@ case class ParseTree(s: Symbol, children: ParseTree*)
 
 case class ParseTmp(rule: Rule, s: Int, prob: Double)
 case class ParseResult(trees: List[ParseTree], prob: Double)
-class NLPParser(cfg: CFG) {
+class NLPParser(cfg: CFG, ignoreProbabilities: Boolean = false) {
 
 	val pi = Map[(Int, Int, NT), Double]()
 	val bp = Map[(Int, Int, NT), List[ParseTmp]]()
 
-	def parse(sentence: Sentence, ignoreProbabilities: Boolean = false): ParseResult = {
+	def ruleProbability(rule: Rule) = {
+		val prob = cfg.q(rule)
+		if (ignoreProbabilities)
+			if (prob > 0) 1.0 else 0.0
+		else
+			prob
+	}
+
+	def parse(sentence: Sentence): ParseResult = {
 		val n = sentence.length
 		for (i <- (1 to n); X <- cfg.NTs) {
 			val rule = X -> T(sentence(i - 1)) // need to offset -1 because we start at 1
-			pi(i, i, X) = cfg.q(rule)
+			pi(i, i, X) = ruleProbability(rule)
 			bp(i, i, X) = List(ParseTmp(rule, 0, 1))
 		}
 
@@ -79,7 +87,7 @@ class NLPParser(cfg: CFG) {
 					val parseTmps = for (r <- cfg.rulesFor(X); s <- (i to (j - 1))) yield {
 						val Y = r.rightSide(0).asInstanceOf[NT]
 						val Z = r.rightSide(1).asInstanceOf[NT]
-						val prob = cfg.q(r) * pi((i, s, Y)) * pi((s + 1, j, Z));
+						val prob = ruleProbability(r) * pi((i, s, Y)) * pi((s + 1, j, Z));
 						ParseTmp(r, s, prob)
 					}
 					if (parseTmps.isEmpty) {

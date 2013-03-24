@@ -44,8 +44,8 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 		cfg
 	}
 
-	def secondQuizSixthSecondQuestionParser: NLPParser = {
-		new NLPParser(secondQuizSixthQuestionCFG)
+	def secondQuizSixthSecondQuestionParser(ignoreProbabilities: Boolean): NLPParser = {
+		new NLPParser(secondQuizSixthQuestionCFG, ignoreProbabilities)
 	}
 
 	def secondQuizSixthSecondQuestionExampleSentence: Sentence = {
@@ -104,13 +104,13 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 
 	test("CFG returns correct probability.") {
 		val cfg = secondQuizSixthQuestionCFG
-		cfg.q(NP -> (John)) should be (1.0)
+		cfg.q(NP -> (John)) should be > (0.0)
 		cfg.q(NP -> (saw)) should be (0.0)
 		cfg.q(DT -> (Mary)) should be (0.0)
 	}
 
 	test("Dynamic programming table is filled correctly.") {
-		val parser = secondQuizSixthSecondQuestionParser
+		val parser = secondQuizSixthSecondQuestionParser(true)
 		parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 		parser.pi(1, 1, NP) should be (1.0)
 		parser.pi(1, 1, VP) should be (0.0)
@@ -123,15 +123,18 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 	}
 
 	test("Sentence is correctly parsed (return all possible parse trees).") {
-		val parser = secondQuizSixthSecondQuestionParser
-		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence, true)
+		val parser = secondQuizSixthSecondQuestionParser(true)
+		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 		parseResult.trees should contain (secondQuizSixthQuestionParseResult1)
 		parseResult.trees should contain (secondQuizSixthQuestionParseResult2)
 		parseResult.prob should be (1)
 	}
 
 	test("Sentence is correctly parsed when using probabilities.") {
-		val parser = secondQuizSixthSecondQuestionParser
+		val parser = secondQuizSixthSecondQuestionParser(false)
 		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
+		parseResult.trees should not contain (secondQuizSixthQuestionParseResult1)
+		parseResult.trees should contain (secondQuizSixthQuestionParseResult2)
+		parseResult.prob should be (0.0024576 plusOrMinus 0.0000001)
 	}
 }
