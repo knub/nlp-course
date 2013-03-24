@@ -99,6 +99,30 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 					)
 				)
 			)
+		val parseResult2 =
+			ParseTree(S,
+				ParseTree(NP,
+					ParseTree(John)
+				),
+				ParseTree(VP,
+					ParseTree(VP,
+						ParseTree(Vt,
+							ParseTree(saw)
+						),
+						ParseTree(NP,
+							ParseTree(Mary)
+						)
+					),
+					ParseTree(PP,
+						ParseTree(IN,
+							ParseTree(`with`)
+						),
+						ParseTree(NP,
+							ParseTree(Sally)
+						)
+					)
+				)
+			)
 		println(parseResult1)
 		println(parseResult.trees(0))
 		parseResult.trees should contain (parseResult1)
