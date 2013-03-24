@@ -76,6 +76,31 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 		val parser = secondQuizSixthSecondQuestionParser
 		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 		// println(parseResult)
-		// parseResult.prob should be (1)
+		val parseResult1 =
+			ParseTree(S,
+				ParseTree(NP,
+					ParseTree(John)
+				),
+				ParseTree(VP,
+					ParseTree(Vt,
+						ParseTree(saw)
+					),
+					ParseTree(NP,
+						ParseTree(NP,
+							ParseTree(Mary)
+						),
+						ParseTree(PP,
+							ParseTree(IN,
+								ParseTree(`with`)
+							),
+							ParseTree(NP,
+								ParseTree(Sally)
+							)
+						)
+					)
+				)
+			)
+		// parseResult.trees should contain (parseResult1)
+		parseResult.prob should be (1)
 	}
 }

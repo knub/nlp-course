@@ -13,6 +13,9 @@ package object nlpcourse {
 		def update(a: A, b: B, c: C, d: D) {
 			m((a, b, c)) = d
 		}
+		def apply(a: A, b: B, c: C): D = {
+			m((a, b, c))
+		}
 	}
 
 	type TagList = List[Tag]
