@@ -59,8 +59,11 @@ class NLPParser(cfg: CFG) {
 
 	def parse(sentence: Sentence): ParseResult = {
 		val n = sentence.length
-		for (i <- (1 to n); X <- cfg.NTs)
-			pi(i, i, X) = cfg.q(X -> T((sentence(i - 1)))) // need to offset -1 because we start at 1
+		for (i <- (1 to n); X <- cfg.NTs) {
+			val rule = X -> T(sentence(i - 1)) // need to offset -1 because we start at 1
+			pi(i, i, X) = cfg.q(rule)
+			bp(i, i, X) = List(ParseTmp(rule, 0, 1))
+		}
 
 		for (l <- (1 to (n - 1))) {
 			for (i <- (1 to (n - l))) {
@@ -86,12 +89,12 @@ class NLPParser(cfg: CFG) {
 			}
 		}
 
-		// determineParseTree(1, n, cfg.startSymbol)
-		ParseResult(List(), pi(1, n, cfg.startSymbol))
+		val parseTrees = determineParseTree(1, n, cfg.startSymbol)
+		ParseResult(List(parseTrees), pi(1, n, cfg.startSymbol))
 	}
 
 	def determineParseTree(i: Int, j: Int, symbol: NT): ParseTree = {
-		val parseTmp: ParseTmp = TripleKeyMap(bp)(i, j, symbol)(0)
+		val parseTmp: ParseTmp = bp(i, j, symbol)(0)
 		val rule = parseTmp.rule
 		val s = parseTmp.s
 
@@ -99,7 +102,7 @@ class NLPParser(cfg: CFG) {
 			ParseTree(rule.leftSide, determineParseTree(i, s, rule.rightSide(0).asInstanceOf[NT]), determineParseTree(s + 1, j, rule.rightSide(1).asInstanceOf[NT]))
 		}
 		else {
-			ParseTree(rule.leftSide)
+			ParseTree(rule.leftSide, ParseTree(rule.rightSide(0)))
 		}
 	}
 }
