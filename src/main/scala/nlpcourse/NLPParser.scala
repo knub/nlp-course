@@ -14,8 +14,15 @@ case class NT(name: String) extends Symbol(name) {
 }
 
 case class Rule(leftSide: NT, rightSide: Symbol*) {
+	var prob: Double = 1.0
+
 	def isNonTerminalRule: Boolean = {
 		rightSide.size == 2
+	}
+
+	def withProb(value: Double) = {
+		prob = value
+		this
 	}
 }
 
@@ -57,7 +64,7 @@ class NLPParser(cfg: CFG) {
 	val pi = Map[(Int, Int, NT), Double]()
 	val bp = Map[(Int, Int, NT), List[ParseTmp]]()
 
-	def parse(sentence: Sentence): ParseResult = {
+	def parse(sentence: Sentence, ignoreProbabilities: Boolean = false): ParseResult = {
 		val n = sentence.length
 		for (i <- (1 to n); X <- cfg.NTs) {
 			val rule = X -> T(sentence(i - 1)) // need to offset -1 because we start at 1

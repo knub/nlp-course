@@ -30,16 +30,16 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 	def secondQuizSixthQuestionCFG: CFG = {
 		val cfg = new CFG();
 		cfg.rules(
-			S -> (NP, VP),
-			VP -> (Vt, NP),
-			VP -> (VP, PP),
-			NP -> (NP, PP),
-			NP -> (John),
-			NP -> (Mary),
-			NP -> (Sally),
-			PP -> (IN, NP),
-			IN -> (`with`),
-			Vt -> (saw)
+			S -> (NP, VP) withProb 1.0,
+			VP -> (Vt, NP) withProb 0.2,
+			VP -> (VP, PP) withProb 0.8,
+			NP -> (NP, PP) withProb 0.2,
+			NP -> (John) withProb 0.16,
+			NP -> (Mary) withProb 0.24,
+			NP -> (Sally) withProb 0.4,
+			PP -> (IN, NP) withProb 1.0,
+			IN -> (`with`) withProb 1.0,
+			Vt -> (saw) withProb 1.0
 		)
 		cfg
 	}
@@ -50,6 +50,56 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 
 	def secondQuizSixthSecondQuestionExampleSentence: Sentence = {
 		List("John", "saw", "Mary", "with", "Sally")
+	}
+	def secondQuizSixthQuestionParseResult1: ParseTree = {
+		ParseTree(S,
+			ParseTree(NP,
+				ParseTree(John)
+			),
+			ParseTree(VP,
+				ParseTree(Vt,
+					ParseTree(saw)
+				),
+				ParseTree(NP,
+					ParseTree(NP,
+						ParseTree(Mary)
+					),
+					ParseTree(PP,
+						ParseTree(IN,
+							ParseTree(`with`)
+						),
+						ParseTree(NP,
+							ParseTree(Sally)
+						)
+					)
+				)
+			)
+		)
+	}
+	def secondQuizSixthQuestionParseResult2: ParseTree = {
+		ParseTree(S,
+			ParseTree(NP,
+				ParseTree(John)
+			),
+			ParseTree(VP,
+				ParseTree(VP,
+					ParseTree(Vt,
+						ParseTree(saw)
+					),
+					ParseTree(NP,
+						ParseTree(Mary)
+					)
+				),
+				ParseTree(PP,
+					ParseTree(IN,
+						ParseTree(`with`)
+					),
+					ParseTree(NP,
+						ParseTree(Sally)
+					)
+				)
+			)
+		)
 	}
 
 	test("CFG returns correct probability.") {
@@ -74,57 +124,14 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 
 	test("Sentence is correctly parsed (return all possible parse trees).") {
 		val parser = secondQuizSixthSecondQuestionParser
-		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
-		val parseResult1 =
-			ParseTree(S,
-				ParseTree(NP,
-					ParseTree(John)
-				),
-				ParseTree(VP,
-					ParseTree(Vt,
-						ParseTree(saw)
-					),
-					ParseTree(NP,
-						ParseTree(NP,
-							ParseTree(Mary)
-						),
-						ParseTree(PP,
-							ParseTree(IN,
-								ParseTree(`with`)
-							),
-							ParseTree(NP,
-								ParseTree(Sally)
-							)
-						)
-					)
-				)
-			)
-		val parseResult2 =
-			ParseTree(S,
-				ParseTree(NP,
-					ParseTree(John)
-				),
-				ParseTree(VP,
-					ParseTree(VP,
-						ParseTree(Vt,
-							ParseTree(saw)
-						),
-						ParseTree(NP,
-							ParseTree(Mary)
-						)
-					),
-					ParseTree(PP,
-						ParseTree(IN,
-							ParseTree(`with`)
-						),
-						ParseTree(NP,
-							ParseTree(Sally)
-						)
-					)
-				)
-			)
-		parseResult.trees should contain (parseResult1)
-		parseResult.trees should contain (parseResult2)
+		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence, true)
+		parseResult.trees should contain (secondQuizSixthQuestionParseResult1)
+		parseResult.trees should contain (secondQuizSixthQuestionParseResult2)
 		parseResult.prob should be (1)
+	}
+
+	test("Sentence is correctly parsed when using probabilities.") {
+		val parser = secondQuizSixthSecondQuestionParser
+		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 	}
 }
