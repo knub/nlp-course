@@ -65,14 +65,15 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 	test("Dynamic programming table is filled correctly.") {
 		val parser = secondQuizSecondQuestionParser
 		parser.parse(secondQuizSecondQuestionExampleSentence)
-		parser.table(1, 1, NP) should be (1.0)
-		parser.table(2, 2, NP) should be (0.0)
+		parser.pi(1, 1, NP) should be (1.0)
+		parser.pi(1, 1, NN) should be (0.0)
+		parser.pi(2, 2, NP) should be (0.0)
 	}
 
 	test("Sentence is correctly parsed (return all possible parse trees).") {
 		val parser = secondQuizSecondQuestionParser
 		val parseResult = parser.parse(secondQuizSecondQuestionExampleSentence)
 		// println(parseResult)
-		// parseResult.size should be (2)
+		parseResult.prob should be (1)
 	}
 }
