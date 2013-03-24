@@ -3,7 +3,7 @@ package nlpcourse
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-class NLPCourseTest extends FunSuite with ShouldMatchers {
+class LanguageModelViterbiTest extends FunSuite with ShouldMatchers {
 	def firstInVideoQuiz: ViterbiAlgorithm = {
 		val model = new LanguageModel()
 		model.trainT(D, Star, Star, 1)

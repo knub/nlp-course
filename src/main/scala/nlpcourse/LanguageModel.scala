@@ -76,7 +76,7 @@ class LanguageModel {
 		tags.size match {
 			case 3 => {
 				if (tValues.contains((tags(0), tags(1), tags(2)))) {
-					println("Using given t value.")
+					// println("Using given t value.")
 					return tValues((tags(0), tags(1), tags(2)))
 				}
 			}
