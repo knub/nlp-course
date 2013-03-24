@@ -17,6 +17,8 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 	val saw = T("saw")
 	val the = T("the")
 	val John = T("John")
+	val Mary = T("Mary")
+	val Sally = T("Sally")
 	val `with` = T("with")
 	val dog = T("dog")
 	val cat = T("cat")
@@ -25,55 +27,55 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 	val and = T("and")
 	val in = T("IN")
 
-	def secondQuizSecondQuestionCFG: CFG = {
+	def secondQuizSixthQuestionCFG: CFG = {
 		val cfg = new CFG();
 		cfg.rules(
 			S -> (NP, VP),
 			VP -> (Vt, NP),
-			Vt -> (saw),
-			NP -> (John),
-			NP -> (DT, NN),
-			DT -> (the),
-			NN -> (dog),
-			NN -> (cat),
-			NN -> (house),
-			NN -> (mouse),
-			NP -> (NP, CC, NP),
-			CC -> (and),
-			PP -> (IN, NP),
+			VP -> (VP, PP),
 			NP -> (NP, PP),
+			NP -> (John),
+			NP -> (Mary),
+			NP -> (Sally),
+			PP -> (IN, NP),
 			IN -> (`with`),
-			IN -> (in)
+			Vt -> (saw)
 		)
 		cfg
 	}
 
-	def secondQuizSecondQuestionParser: NLPParser = {
-		new NLPParser(secondQuizSecondQuestionCFG)
+	def secondQuizSixthSecondQuestionParser: NLPParser = {
+		new NLPParser(secondQuizSixthQuestionCFG)
 	}
 
-	def secondQuizSecondQuestionExampleSentence: Sentence = {
-		List("John", "saw", "the", "cat", "and", "the", "dog", "with", "the", "mouse")
+	def secondQuizSixthSecondQuestionExampleSentence: Sentence = {
+		List("John", "saw", "Mary", "with", "Sally")
 	}
 
 	test("CFG returns correct probability.") {
-		val cfg = secondQuizSecondQuestionCFG
-		cfg.q(DT -> (the)) should be (1.0)
-		cfg.q(DT -> (cat)) should be (0.0)
+		val cfg = secondQuizSixthQuestionCFG
+		cfg.q(NP -> (John)) should be (1.0)
+		cfg.q(NP -> (saw)) should be (0.0)
+		cfg.q(DT -> (Mary)) should be (0.0)
 	}
 
 	test("Dynamic programming table is filled correctly.") {
-		val parser = secondQuizSecondQuestionParser
-		parser.parse(secondQuizSecondQuestionExampleSentence)
+		val parser = secondQuizSixthSecondQuestionParser
+		parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 		parser.pi(1, 1, NP) should be (1.0)
-		parser.pi(1, 1, NN) should be (0.0)
+		parser.pi(1, 1, VP) should be (0.0)
 		parser.pi(2, 2, NP) should be (0.0)
+		parser.pi(5, 5, NP) should be (1.0)
+		parser.pi(4, 5, PP) should be (1.0)
+		parser.pi(3, 5, NP) should be (1.0)
+		parser.pi(2, 5, VP) should be (1.0)
+		parser.pi(1, 5, S) should be (1.0)
 	}
 
 	test("Sentence is correctly parsed (return all possible parse trees).") {
-		val parser = secondQuizSecondQuestionParser
-		val parseResult = parser.parse(secondQuizSecondQuestionExampleSentence)
+		val parser = secondQuizSixthSecondQuestionParser
+		val parseResult = parser.parse(secondQuizSixthSecondQuestionExampleSentence)
 		// println(parseResult)
-		parseResult.prob should be (1)
+		// parseResult.prob should be (1)
 	}
 }
