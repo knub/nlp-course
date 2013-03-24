@@ -123,9 +123,8 @@ class ParsingTest extends FunSuite with ShouldMatchers {
 					)
 				)
 			)
-		println(parseResult1)
-		println(parseResult.trees(0))
 		parseResult.trees should contain (parseResult1)
+		parseResult.trees should contain (parseResult2)
 		parseResult.prob should be (1)
 	}
 }

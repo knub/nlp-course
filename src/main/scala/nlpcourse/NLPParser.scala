@@ -90,19 +90,25 @@ class NLPParser(cfg: CFG) {
 		}
 
 		val parseTrees = determineParseTree(1, n, cfg.startSymbol)
-		ParseResult(List(parseTrees), pi(1, n, cfg.startSymbol))
+		ParseResult(parseTrees, pi(1, n, cfg.startSymbol))
 	}
 
-	def determineParseTree(i: Int, j: Int, symbol: NT): ParseTree = {
-		val parseTmp: ParseTmp = bp(i, j, symbol)(0)
-		val rule = parseTmp.rule
-		val s = parseTmp.s
+	def determineParseTree(i: Int, j: Int, symbol: NT): List[ParseTree] = {
+		val parseTmps: List[ParseTmp] = bp(i, j, symbol)
 
-		if (rule.isNonTerminalRule) {
-			ParseTree(rule.leftSide, determineParseTree(i, s, rule.rightSide(0).asInstanceOf[NT]), determineParseTree(s + 1, j, rule.rightSide(1).asInstanceOf[NT]))
-		}
-		else {
-			ParseTree(rule.leftSide, ParseTree(rule.rightSide(0)))
+		parseTmps.flatMap { parseTmp =>
+			val rule = parseTmp.rule
+			val s = parseTmp.s
+
+			if (rule.isNonTerminalRule) {
+				val leftTrees = determineParseTree(i, s, rule.rightSide(0).asInstanceOf[NT])
+				val rightTrees = determineParseTree(s + 1, j, rule.rightSide(1).asInstanceOf[NT])
+				for (leftTree <- leftTrees; rightTree <- rightTrees)
+					yield ParseTree(rule.leftSide, leftTree, rightTree)
+			}
+			else {
+				List(ParseTree(rule.leftSide, ParseTree(rule.rightSide(0))))
+			}
 		}
 	}
 }
