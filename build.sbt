@@ -11,3 +11,5 @@ libraryDependencies += "org.scalaz" %% "scalaz-core" % "6.0.4"
 libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2"
 
 libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
+
+libraryDependencies += "net.liftweb" % "lift-json_2.9.1" % "2.5-M4"

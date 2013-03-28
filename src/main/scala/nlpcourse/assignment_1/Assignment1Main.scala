@@ -5,12 +5,12 @@ import java.io.File
 import scalax.io._
 import nlpcourse._
 
-object Assignment1 extends App {
+object Assignment1 { //extends App {
 
 	lazy val inputFileName = "gene.train"
 	lazy val baseFileName = inputFileName.split("\\.")(0)
 
-	override def main(args: Array[String]): Unit = {
+	def mainMethod(args: Array[String]): Unit = {
 		if (args contains "build") {
 			print("Determing words to be replaced")
 			val wordsToBeReplaced = determineWordsToBeReplaced
