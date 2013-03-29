@@ -121,5 +121,26 @@ object Assignment2 extends App {
 	}
 
 	def parseSentences(cfg: CFG) {
+		val developmentFile = Resource.fromFile("assignment_2/parse_dev.key".format(inputFileName))
+		val parseFileName = "assignment_2/parse_dev.out"
+		new File(parseFileName).delete
+		val parseTreeFile = Resource.fromFile(parseFileName)
+		val sb = new StringBuilder()
+		val parser = new NLPParser(cfg)
+
+		val lines = developmentFile.lines()
+
+		var i = 0
+		var l = lines.size
+		lines.foreach { line =>
+			println("%d/%d".format(i, l))
+			i += 1
+
+			val sentence: Sentence = line.split(" ").toList
+			val parseTree: ParseTree = parser.parse(sentence).trees(0)
+			sb.append("%s%n".format(parseTree.toString))
+		}
+
+		parseTreeFile.append(sb.toString)
 	}
 }
