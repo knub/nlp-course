@@ -26,7 +26,6 @@ case class Rule(leftSide: NT, rightSide: Symbol*) {
 	}
 }
 
-
 class CFG {
 	var rules: List[Rule] = _
 	def rules(value: Rule*) {
@@ -49,10 +48,7 @@ class CFG {
 			rule.leftSide == X && rule.isNonTerminalRule
 		}
 	}
-
-	def startSymbol: NT = {
-		NT("S")
-	}
+	var startSymbol: NT = NT("S")
 }
 
 case class ParseTree(var s: Symbol, children: ParseTree*) {

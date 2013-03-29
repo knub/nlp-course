@@ -18,6 +18,9 @@ object Assignment2 extends App {
 		} else if (args contains "build") {
 			val wordsToBeReplaced = determineWordsToBeReplaced
 			parseJson(wordsToBeReplaced)
+		} else if (args contains "parse") {
+			val cfg = createCFG
+			parseSentences(cfg)
 		}
 	}
 
@@ -82,4 +85,41 @@ object Assignment2 extends App {
 		wordCount.filter { case (word, wordCount) => wordCount < 5 }.keys.toList
 	}
 
+	def createCFG: CFG = {
+		val cfg = new CFG()
+		val unaryRuleCount = Map[(NT, T), Int]().withDefaultValue(0)
+		val binaryRuleCount = Map[(NT, NT, NT), Int]().withDefaultValue(0)
+		val nonTerminalCounts = Map[NT, Int]().withDefaultValue(0)
+
+		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.counts.out")
+		val lines = countTrainingFile.lines()
+
+		lines.foreach { line =>
+			val lineData = line.split(" ")
+			if (line contains "UNARYRULE") {
+				unaryRuleCount(NT(lineData(2)), T(lineData(3))) += lineData(0).toInt
+			}
+			else if (line contains "BINARYRULE") {
+				binaryRuleCount(NT(lineData(2)), NT(lineData(3)), NT(lineData(4))) += lineData(0).toInt
+			}
+			else if (line contains "NONTERMINAL") {
+				nonTerminalCounts(NT(lineData(2))) += lineData(0).toInt
+			}
+		}
+
+		val l = ListBuffer[Rule]()
+
+		unaryRuleCount.foreach { case ((nonTerminal, terminal), count) =>
+			l += nonTerminal -> (terminal) withProb count.toDouble / nonTerminalCounts(nonTerminal)
+		}
+		binaryRuleCount.foreach { case ((leftSide, rightSide1, rightSide2), count) =>
+			l += leftSide -> (rightSide1, rightSide2) withProb count.toDouble / nonTerminalCounts(leftSide)
+		}
+		cfg.rules = l.toList
+		cfg.startSymbol = NT("SBARQ")
+		cfg
+	}
+
+	def parseSentences(cfg: CFG) {
+	}
 }
