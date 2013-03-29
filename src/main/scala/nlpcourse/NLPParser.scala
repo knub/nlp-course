@@ -3,11 +3,11 @@ package nlpcourse
 import nlpcourse._
 import scala.collection.mutable.Map
 
-class Symbol(name: String)
+class Symbol(val name: String)
 // Terminal symbol
-case class T(name: String) extends Symbol(name)
+case class T(override val name: String) extends Symbol(name)
 // Non-terminal symbol
-case class NT(name: String) extends Symbol(name) {
+case class NT(override val name: String) extends Symbol(name) {
 	def ->(symbols: Symbol*): Rule = {
 		Rule(this, symbols: _*)
 	}
@@ -55,7 +55,18 @@ class CFG {
 	}
 }
 
-case class ParseTree(s: Symbol, children: ParseTree*)
+case class ParseTree(s: Symbol, children: ParseTree*) {
+	override def toString: String = {
+		children.size match {
+			case 0 => {
+				"[\"%s\"]".format(s.name)
+			}
+			case 2 => {
+				"[\"%s\", %s, %s]".format(s.name, children(0).toString, children(1).toString)
+			}
+		}
+	}
+}
 
 case class ParseTmp(rule: Rule, s: Int, prob: Double)
 case class ParseResult(trees: List[ParseTree], prob: Double)
