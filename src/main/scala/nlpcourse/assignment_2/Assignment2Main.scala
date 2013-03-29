@@ -14,12 +14,17 @@ object Assignment2 extends App {
 
 	override def main(args: Array[String]): Unit = {
 		if (args contains "parsejson") {
-			parseJson
+			parseJson()
+		} else if (args contains "build") {
+			val wordsToBeReplaced = determineWordsToBeReplaced
+			parseJson(wordsToBeReplaced)
 		}
 	}
 
-	def parseJson {
+	def parseJson(wordsToBeReplaced: List[String] = List()) {
 		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.dat".format(inputFileName))
+		// val predictFile = Resource.fromFile("assignment_2/parse_train.dat.rare")
+		val sb = new StringBuilder()
 		val lines = countTrainingFile.lines()
 
 		lines.toList.take(1).foreach { line =>
@@ -28,6 +33,7 @@ object Assignment2 extends App {
 			println(line)
 			println(parseTree)
 		}
+		// predictFile.append(sb.toString)
 	}
 
 	def parseJsonToParseTree(json: JValue): ParseTree = {
@@ -36,7 +42,7 @@ object Assignment2 extends App {
 				ParseTree(NT(values(0).values.toString), parseJsonToParseTree(values(1)), parseJsonToParseTree(values(2)))
 			}
 			case JArray(values) if values.length == 2 => {
-				ParseTree(T(values(1).values.toString))
+				ParseTree(NT(values(0).values.toString), ParseTree(T(values(1).values.toString)))
 			}
 			case _ => {
 				throw new RuntimeException("Error parsing JSON to ParseTree.")
@@ -46,11 +52,11 @@ object Assignment2 extends App {
 
 	def determineWordsToBeReplaced: List[String] = {
 		val wordCount = Map[String, Int]().withDefaultValue(0)
-		val countTrainingFile = Resource.fromFile("assignment_1/%s.counts".format(inputFileName))
+		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.count")
 		val lines = countTrainingFile.lines()
 
 		lines.toList.filter { line =>
-			line.contains("WORDTAG")
+			line.contains("UNARYRULE")
 		}.foreach { line =>
 			val lineData = line.split(" ")
 			val count = lineData(0).toInt

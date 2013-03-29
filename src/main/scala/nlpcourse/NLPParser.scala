@@ -61,6 +61,9 @@ case class ParseTree(s: Symbol, children: ParseTree*) {
 			case 0 => {
 				"[\"%s\"]".format(s.name)
 			}
+			case 1 => {
+				"[\"%s\", \"%s\"]".format(s.name, children(0).s.name)
+			}
 			case 2 => {
 				"[\"%s\", %s, %s]".format(s.name, children(0).toString, children(1).toString)
 			}
