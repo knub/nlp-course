@@ -55,7 +55,7 @@ class CFG {
 	}
 }
 
-case class ParseTree(s: Symbol, children: ParseTree*) {
+case class ParseTree(var s: Symbol, children: ParseTree*) {
 	override def toString: String = {
 		children.size match {
 			case 0 => {

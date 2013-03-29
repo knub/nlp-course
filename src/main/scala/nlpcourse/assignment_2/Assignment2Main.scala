@@ -23,17 +23,32 @@ object Assignment2 extends App {
 
 	def parseJson(wordsToBeReplaced: List[String] = List()) {
 		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.dat".format(inputFileName))
-		// val predictFile = Resource.fromFile("assignment_2/parse_train.dat.rare")
+		val rareFileName = "assignment_2/parse_train.dat.rare"
+		new File(rareFileName).delete
+		val newTrainingFile = Resource.fromFile(rareFileName)
 		val sb = new StringBuilder()
 		val lines = countTrainingFile.lines()
 
-		lines.toList.take(1).foreach { line =>
+		lines.toList.foreach { line =>
 			val parsedJson = json.parse(line)
 			val parseTree = parseJsonToParseTree(parsedJson)
-			println(line)
-			println(parseTree)
+			replaceWords(parseTree, wordsToBeReplaced)
+			sb.append("%s%n".format(parseTree.toString))
 		}
-		// predictFile.append(sb.toString)
+		newTrainingFile.append(sb.toString)
+	}
+
+	def replaceWords(parseTree: ParseTree, wordsToBeReplaced: List[String]) {
+		if (parseTree.children.size == 0) {
+			val terminal = parseTree.s
+			if (wordsToBeReplaced.contains(terminal.name)) {
+				parseTree.s = T("_RARE_")
+			}
+			return
+		}
+		parseTree.children.foreach { parseTree =>
+			replaceWords(parseTree, wordsToBeReplaced)
+		}
 	}
 
 	def parseJsonToParseTree(json: JValue): ParseTree = {
