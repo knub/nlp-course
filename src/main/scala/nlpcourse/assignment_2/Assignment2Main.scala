@@ -121,8 +121,8 @@ object Assignment2 extends App {
 	}
 
 	def parseSentences(cfg: CFG) {
-		val developmentFile = Resource.fromFile("assignment_2/parse_dev.dat".format(inputFileName))
-		val parseFileName = "assignment_2/parse_dev.out"
+		val developmentFile = Resource.fromFile("assignment_2/parse_test.dat".format(inputFileName))
+		val parseFileName = "assignment_2/parser_test.p2.out"
 		new File(parseFileName).delete
 		val parseTreeFile = Resource.fromFile(parseFileName)
 		val sb = new StringBuilder()

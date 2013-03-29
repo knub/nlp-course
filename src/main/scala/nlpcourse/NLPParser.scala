@@ -30,6 +30,7 @@ class CFG {
 	var rules: List[Rule] = _
 
 	var NTs: List[NT] = List()
+	var words: List[Word] = List()
 
 	def rules(value: Rule*) {
 		rules(value.toList)
@@ -38,6 +39,7 @@ class CFG {
 	def rules(value: List[Rule]) {
 		rules = value.toList
 		NTs = rules.map(_.leftSide).distinct
+		words = rules.filter(_.rightSide.size == 1).map(_.rightSide(0).name).distinct
 	}
 
 
@@ -92,6 +94,10 @@ class NLPParser(cfg: CFG, ignoreProbabilities: Boolean = false) {
 	}
 
 	def rareRuleProbability(rule: Rule): Double = {
+		val word = rule.rightSide(0).name
+		if (cfg.words.contains(word)) {
+			return 0.0
+		}
 		cfg.q(Rule(rule.leftSide, T("_RARE_")))
 	}
 
