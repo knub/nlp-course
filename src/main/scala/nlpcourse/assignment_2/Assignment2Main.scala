@@ -115,13 +115,13 @@ object Assignment2 extends App {
 		binaryRuleCount.foreach { case ((leftSide, rightSide1, rightSide2), count) =>
 			l += leftSide -> (rightSide1, rightSide2) withProb count.toDouble / nonTerminalCounts(leftSide)
 		}
-		cfg.rules = l.toList
+		cfg.rules(l.toList)
 		cfg.startSymbol = NT("SBARQ")
 		cfg
 	}
 
 	def parseSentences(cfg: CFG) {
-		val developmentFile = Resource.fromFile("assignment_2/parse_dev.key".format(inputFileName))
+		val developmentFile = Resource.fromFile("assignment_2/parse_dev.dat".format(inputFileName))
 		val parseFileName = "assignment_2/parse_dev.out"
 		new File(parseFileName).delete
 		val parseTreeFile = Resource.fromFile(parseFileName)
