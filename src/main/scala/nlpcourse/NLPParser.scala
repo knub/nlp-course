@@ -50,6 +50,7 @@ class CFG {
 			0.0
 	}
 
+	var rulesForCache = Map[NT, List[Rule]]()
 	def rulesFor(X: NT): List[Rule] = {
 		rules.filter { rule =>
 			rule.leftSide == X && rule.isNonTerminalRule

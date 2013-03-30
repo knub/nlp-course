@@ -25,8 +25,8 @@ object Assignment2 extends App {
 	}
 
 	def parseJson(wordsToBeReplaced: List[String] = List()) {
-		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.dat".format(inputFileName))
-		val rareFileName = "assignment_2/parse_train.dat.rare"
+		val countTrainingFile = Resource.fromFile("assignment_2/parse_train_vert.dat".format(inputFileName))
+		val rareFileName = "assignment_2/parse_train_vert.dat.rare"
 		new File(rareFileName).delete
 		val newTrainingFile = Resource.fromFile(rareFileName)
 		val sb = new StringBuilder()
@@ -91,7 +91,7 @@ object Assignment2 extends App {
 		val binaryRuleCount = Map[(NT, NT, NT), Int]().withDefaultValue(0)
 		val nonTerminalCounts = Map[NT, Int]().withDefaultValue(0)
 
-		val countTrainingFile = Resource.fromFile("assignment_2/parse_train.counts.out")
+		val countTrainingFile = Resource.fromFile("assignment_2/parse_train_vert.dat.rare.count")
 		val lines = countTrainingFile.lines()
 
 		lines.foreach { line =>
@@ -121,8 +121,8 @@ object Assignment2 extends App {
 	}
 
 	def parseSentences(cfg: CFG) {
-		val developmentFile = Resource.fromFile("assignment_2/parse_test.dat".format(inputFileName))
-		val parseFileName = "assignment_2/parser_test.p2.out"
+		val developmentFile = Resource.fromFile("assignment_2/parse_dev.dat".format(inputFileName))
+		val parseFileName = "assignment_2/parser_test.p3.out"
 		new File(parseFileName).delete
 		val parseTreeFile = Resource.fromFile(parseFileName)
 		val sb = new StringBuilder()
