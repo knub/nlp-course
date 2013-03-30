@@ -27,7 +27,8 @@ case class Rule(leftSide: NT, rightSide: Symbol*) {
 }
 
 class CFG {
-	var rules: List[Rule] = _
+	private var rules: List[Rule] = _
+	private var ruleProbMap = Map[Rule, Double]()
 
 	var NTs: List[NT] = List()
 	var words: List[Word] = List()
@@ -35,25 +36,34 @@ class CFG {
 	def rules(value: Rule*) {
 		rules(value.toList)
 	}
-
 	def rules(value: List[Rule]) {
+		rulesForCache = Map[NT, List[Rule]]()
 		rules = value.toList
 		NTs = rules.map(_.leftSide).distinct
 		words = rules.filter(_.rightSide.size == 1).map(_.rightSide(0).name).distinct
+		rules.foreach { rule =>
+			ruleProbMap += rule -> rule.prob
+		}
 	}
 
-
 	def q(rule: Rule): Double = {
-		if (rules.contains(rule))
-			rules.find(_ == rule).get.prob
-		else
-			0.0
+		ruleProbMap.get(rule) match {
+			case Some(prob) => prob
+			case None => 0.0
+		}
 	}
 
 	var rulesForCache = Map[NT, List[Rule]]()
 	def rulesFor(X: NT): List[Rule] = {
-		rules.filter { rule =>
-			rule.leftSide == X && rule.isNonTerminalRule
+		if (rulesForCache.contains(X)) {
+			rulesForCache(X)
+		}
+		else {
+			val rulesForX = rules.filter { rule =>
+				rule.leftSide == X && rule.isNonTerminalRule
+			}
+			rulesForCache(X) = rulesForX
+			rulesForX
 		}
 	}
 	var startSymbol: NT = NT("S")
