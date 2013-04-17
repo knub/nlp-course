@@ -7,12 +7,12 @@ import nlpcourse._
 import net.liftweb.json
 import net.liftweb.json.JsonAST._
 
-object Assignment2 extends App {
+object Assignment2 {// extends App {
 
 	lazy val inputFileName = "gene.train"
 	lazy val baseFileName = inputFileName.split("\\.")(0)
 
-	override def main(args: Array[String]): Unit = {
+	def mainMethod(args: Array[String]): Unit = {
 		if (args contains "parsejson") {
 			parseJson()
 		} else if (args contains "build") {
