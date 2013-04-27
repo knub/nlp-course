@@ -31,17 +31,24 @@ class EMAlgorithm {
 	// (the english ones)
 	def estimateParams(sentences: List[(Sentence, Sentence)], model: Int) {
 		val S = 5
-		(1 to 5).foreach { s =>
+		// if (model == 2) {
+		// 	println("Initial q values")
+		// 	println(q((0, 1, 2, 2)))
+		// 	println(q((2, 2, 2, 2)))
+		// 	println(q((2, 1, 2, 2)))
+		// 	println("Initial q values, done.")
+		// }
+		(1 to S).foreach { s =>
 			println("Starting " + s.toString)
 			sentences.zipWithIndex.foreach { case ((words1, words2), k) =>
 				words1.zipWithIndex.foreach { case (word1, i) =>
 					val words2WithNull = "NULL" :: words2
 					words2WithNull.zipWithIndex.foreach { case (word2, j) =>
-						val deltaValue = delta(words2WithNull, word1, i, words1.length, word2, j, words2.length, model)
+						val deltaValue = delta(k + 1, words2WithNull, word1, i + 1, words1.length, word2, j, words2.length, model)
 						C_e_f((word2, word1)) += deltaValue
 						C_e(word2) += deltaValue
-						C_i_l_m((i, words2.length, word1.length)) += deltaValue
-						C_j_i_l_m((j, i, words2.length, word1.length)) += deltaValue
+						C_i_l_m((i + 1, words2.length, words1.length)) += deltaValue
+						C_j_i_l_m((j, i + 1, words2.length, words1.length)) += deltaValue
 					}
 				}
 			}
@@ -53,6 +60,11 @@ class EMAlgorithm {
 					q((j, i, l, m)) = value / C_i_l_m((i, l, m))
 				}
 			}
+			// if (model == 2) {
+			// 	println("after iteration: " + s)
+			// 	println(t)
+			// 	println(q)
+			// }
 			C_e_f = init_C_e_f
 			C_e = init_C_e
 			C_i_l_m = init_C_i_l_m
@@ -65,8 +77,8 @@ class EMAlgorithm {
 	def init_C_i_l_m = Map[(Int, Int, Int), Double]().withDefaultValue(0.0)
 	def init_C_j_i_l_m = Map[(Int, Int, Int, Int), Double]().withDefaultValue(0.0)
 
-	def delta(words2WithNull: Sentence, word1: Word, i: Int, m: Int, word2: Word, j: Int, l: Int, model: Int): Double = {
-		if (model == 1) {
+	def delta(k: Int, words2WithNull: Sentence, word1: Word, i: Int, m: Int, word2: Word, j: Int, l: Int, model: Int): Double = {
+		val value = if (model == 1) {
 			t((word1, word2)) / words2WithNull.foldLeft(0.0) { (acc, word) =>
 				acc + t((word1, word))
 			}
@@ -79,5 +91,9 @@ class EMAlgorithm {
 		} else {
 			-1.0
 		}
+		// if (model == 2) {
+		// 	println(k, i, j, value)
+		// }
+		value
 	}
 }

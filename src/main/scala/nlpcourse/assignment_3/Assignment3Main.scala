@@ -20,7 +20,7 @@ object Assignment3 extends App {
 		}
 	}
 
-	def model1() {
+	def model1(): EMAlgorithm = {
 		val sentences = getSentences
 
 		val sb = new StringBuilder()
@@ -31,21 +31,25 @@ object Assignment3 extends App {
 		em.t.foreach { case ((word1, word2), value) =>
 			sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
 		}
-		new File("assignment_3/tValues").delete
-		val tFile = Resource.fromFile("assignment_3/tValues")
-		tFile.append(sb.toString)
+		calculate(em)
+		em
+		// new File("assignment_3/tValues").delete
+		// val tFile = Resource.fromFile("assignment_3/tValues")
+		// tFile.append(sb.toString)
 	}
 
 	def calculate(model: EMAlgorithm = null) {
 		val MODEL = 2
-		val tFile = Resource.fromFile("assignment_3/tValues" + (if (MODEL == 1) "" else "2"))
-		val tLines = tFile.lines()
-		val t = Map[(Word, Word), Double]()
+		// val tFile = Resource.fromFile("assignment_3/tValues" + (if (MODEL == 1) "" else "2"))
+		// val tLines = tFile.lines()
+		// val t = Map[(Word, Word), Double]()
 
-		tLines.foreach { line =>
-			val lineData = line.split(" ")
-			t((lineData(0), lineData(1))) = lineData(2).toDouble
-		}
+		// tLines.foreach { line =>
+		// 	val lineData = line.split(" ")
+		// 	t((lineData(0), lineData(1))) = lineData(2).toDouble
+		// }
+
+		val t = model.t
 
 		val dataset = "test"
 		val english = Resource.fromFile("assignment_3/%s.en".format(dataset))
@@ -78,7 +82,7 @@ object Assignment3 extends App {
 		out.append(sb.toString)
 	}
 
-	def model2() {
+	def model2(model: EMAlgorithm = null) {
 		val tFile = Resource.fromFile("assignment_3/tValues")
 		val tLines = tFile.lines()
 		val t = Map[(Word, Word), Double]()
