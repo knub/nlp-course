@@ -15,19 +15,13 @@ object Assignment3 extends App {
 			model1()
 		} else if (args contains "calculate1") {
 			calculate1()
+		} else if (args contains "model2") {
+			model2()
 		}
 	}
 
 	def model1() {
-		val english = Resource.fromFile("assignment_3/corpus.en")
-		val spanish = Resource.fromFile("assignment_3/corpus.es")
-		val englishLines = english.lines().toArray
-		val spanishLines = spanish.lines().toArray
-
-		val sentences = (0 to englishLines.size - 1).map { i =>
-			(spanishLines(i).split(" ").toList, englishLines(i).split(" ").toList)
-		}.toList
-
+		val sentences = getSentences
 
 		val sb = new StringBuilder()
 		val em = new EMAlgorithm()
@@ -71,5 +65,39 @@ object Assignment3 extends App {
 			}
 		}
 		out.append(sb.toString)
+	}
+
+	def model2() {
+		val tFile = Resource.fromFile("assignment_3/tValues")
+		val tLines = tFile.lines()
+		val t = Map[(Word, Word), Double]()
+		val em = new EMAlgorithm()
+		tLines.foreach { line =>
+			val lineData = line.split(" ")
+			t((lineData(0), lineData(1))) = lineData(2).toDouble
+		}
+		em.t = t
+		val sentences = getSentences
+		val sb = new StringBuilder()
+
+		em.t.foreach { case ((word1, word2), value) =>
+			sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
+		}
+
+		new File("assignment_3/tValues2").delete
+		val tFile2 = Resource.fromFile("assignment_3/tValues2")
+		tFile2.append(sb.toString)
+	}
+
+
+	def getSentences: List[(Sentence, Sentence)] = {
+		val english = Resource.fromFile("assignment_3/corpus.en")
+		val spanish = Resource.fromFile("assignment_3/corpus.es")
+		val englishLines = english.lines().toArray
+		val spanishLines = spanish.lines().toArray
+
+		(0 to englishLines.size - 1).map { i =>
+			(spanishLines(i).split(" ").toList, englishLines(i).split(" ").toList)
+		}.toList
 	}
 }
