@@ -26,7 +26,7 @@ object Assignment3 extends App {
 		val sb = new StringBuilder()
 		val em = new EMAlgorithm()
 		em.initPhase(sentences)
-		em.estimateParams(sentences)
+		em.estimateParams(sentences, 1)
 
 		em.t.foreach { case ((word1, word2), value) =>
 			sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
@@ -79,8 +79,11 @@ object Assignment3 extends App {
 		}
 		em.t = t
 		val sentences = getSentences
-		val sb = new StringBuilder()
+		println("Read t file.")
+		em.estimateParams(sentences, 2)
 
+
+		val sb = new StringBuilder()
 		em.t.foreach { case ((word1, word2), value) =>
 			sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
 		}
