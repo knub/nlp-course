@@ -13,8 +13,8 @@ object Assignment3 extends App {
 	override def main(args: Array[String]): Unit = {
 		if (args contains "model1") {
 			model1()
-		} else if (args contains "calculate1") {
-			calculate1()
+		} else if (args contains "calculate") {
+			calculate()
 		} else if (args contains "model2") {
 			model2()
 		}
@@ -36,8 +36,9 @@ object Assignment3 extends App {
 		tFile.append(sb.toString)
 	}
 
-	def calculate1() {
-		val tFile = Resource.fromFile("assignment_3/tValues")
+	def calculate() {
+		val MODEL = 2
+		val tFile = Resource.fromFile("assignment_3/tValues" + (if (MODEL == 1) "" else "2"))
 		val tLines = tFile.lines()
 		val t = Map[(Word, Word), Double]()
 
