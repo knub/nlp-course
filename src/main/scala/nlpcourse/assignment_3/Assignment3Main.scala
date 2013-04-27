@@ -36,7 +36,7 @@ object Assignment3 extends App {
 		tFile.append(sb.toString)
 	}
 
-	def calculate() {
+	def calculate(model: EMAlgorithm = null) {
 		val MODEL = 2
 		val tFile = Resource.fromFile("assignment_3/tValues" + (if (MODEL == 1) "" else "2"))
 		val tLines = tFile.lines()
@@ -58,9 +58,19 @@ object Assignment3 extends App {
 
 		(0 to englishLines.size - 1).foreach { k =>
 			val englishWords = englishLines(k).split(" ").zipWithIndex
-			spanishLines(k).split(" ").zipWithIndex.foreach { case (spanishWord, i) =>
-				val bestAlignment: Int = englishWords.maxBy { case (englishWord, _) =>
-					t((spanishWord, englishWord))
+			val spanishWords = spanishLines(k).split(" ").zipWithIndex
+			val l = englishWords.length
+			val m = spanishWords.length
+			spanishWords.foreach { case (spanishWord, i) =>
+				val bestAlignment: Int = englishWords.maxBy { case (englishWord, j) =>
+					if (MODEL == 1) {
+						t((spanishWord, englishWord))
+					} else if (MODEL == 2) {
+						model.t((spanishWord, englishWord)) * model.q((j, i, l, m))
+					}
+					else {
+						0.0
+					}
 				}._2
 				sb.append("%d %d %d%n".format(k + 1, bestAlignment + 1, i + 1))
 			}
@@ -82,15 +92,15 @@ object Assignment3 extends App {
 		println("Read t file.")
 		em.estimateParams(sentences, 2)
 
+		calculate(em)
+		// val sb = new StringBuilder()
+		// em.t.foreach { case ((word1, word2), value) =>
+		// 	sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
+		// }
 
-		val sb = new StringBuilder()
-		em.t.foreach { case ((word1, word2), value) =>
-			sb.append("%s %s ".format(word1, word2) + value.toString + "\n")
-		}
-
-		new File("assignment_3/tValues2").delete
-		val tFile2 = Resource.fromFile("assignment_3/tValues2")
-		tFile2.append(sb.toString)
+		// new File("assignment_3/tValues2").delete
+		// val tFile2 = Resource.fromFile("assignment_3/tValues2")
+		// tFile2.append(sb.toString)
 	}
 
 
